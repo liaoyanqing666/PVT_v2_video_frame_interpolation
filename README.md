@@ -24,7 +24,7 @@ This code implements the task of predicting the intermediate frame based on the 
 
 在Decoder部分，我们使用了反卷积和卷积相结合的解码方式。一共四次反卷积，每次包含一个反卷积操作和两个卷积操作。类似于Unet，本模型也考虑到了残差的影响，因此在解码时，每次反卷积后会和相同大小的Encoder结果在通道上进行叠加，能迫使模型更关注变化的部分，也避免模型过于模糊。
 
-## Model Introduction
+## Model Introduction(English translation)
 
 In the Encoder part, I have used pvt_v2, which stands for Pyramid Vision Transformer. Compared to pvt_v1, pvt_v2 incorporates overlapping encoding during block encoding, considering the interrelationships between each block. However, according to the experimental findings in the original pvt_v2 paper, the improvements in the attention part compared to pvt_v1 are minimal. Additionally, upon examining the source code, I found that an average pooling operation of size 7 is used, which may not generalize well across different input sizes. Therefore, I opted to use the original attention module from pvt_v1.
 
