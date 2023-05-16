@@ -22,19 +22,22 @@ This code implements the task of predicting the intermediate frame based on the 
 
 在Encoder部分，我使用了pvt_v2，即pyramid vision transformer。相比pvt_v1，pvt_v2主要在块编码时使用了overlapping编码，可以考虑到每个块之间的相关关系。不过根据pvt_v2原论文的实验部分的结论，它在attention部分相对于pvt_v1部分的改进几乎没有影响，而且通过阅读源码，我发现使用的是大小为7的平均池化，在不同大小的输入下泛化能力可能不佳，因此我使用了pvt_v1中原始的attention模块。
 
-在Decoder部分，我们使用了反卷积和卷积相结合的解码方式。一共四次反卷积，每次包含一个反卷积操作和两个卷积操作。类似于Unet，本模型也考虑到了残差的影响，因此在解码时，每次反卷积后会和相同大小的Encoder结果在通道上进行叠加，能迫使模型更关注变化的部分，也避免模型过于模糊。
+在Decoder部分，我们使用了反卷积和卷积相结合的解码方式。一共四次反卷积，每次包含一个反卷积操作和两个卷积操作。类似于Unet，本模型也考虑到了残差的影响，因此在解码时，每次反卷积后会和相同大小的Encoder结果在通道上进行叠加(拼接)，能迫使模型更关注变化的部分，也避免模型过于模糊。
+
+具体操作请见PDF文档
 
 ## Model Introduction(English translation)
 
 In the Encoder part, I have used pvt_v2, which stands for Pyramid Vision Transformer. Compared to pvt_v1, pvt_v2 incorporates overlapping encoding during block encoding, considering the interrelationships between each block. However, according to the experimental findings in the original pvt_v2 paper, the improvements in the attention part compared to pvt_v1 are minimal. Additionally, upon examining the source code, I found that an average pooling operation of size 7 is used, which may not generalize well across different input sizes. Therefore, I opted to use the original attention module from pvt_v1.
 
-In the Decoder part, we employ a combination of deconvolution and convolution operations. There are a total of four deconvolution steps, each consisting of one deconvolution operation and two convolution operations. Similar to Unet, this model also takes into account the impact of residuals. Hence, during decoding, after each deconvolution step, the result is element-wise added with the Encoder result of the same size in the channel dimension. This encourages the model to focus more on the changing parts while avoiding excessive blurriness.
+In the Decoder part, we employ a combination of deconvolution and convolution operations. There are a total of four deconvolution steps, each consisting of one deconvolution operation and two convolution operations. Similar to Unet, this model also takes into account the impact of residuals. Hence, during decoding, after each deconvolution step, the result is spliced with the Encoder result of the same size in the channel dimension. This encourages the model to focus more on the changing parts while avoiding excessive blurriness.
 
-
+For details, see the PDF document
 
 *Download dataset: https://opendatalab.com/Vimeo90K/download*
 
 > ## 文件说明
+> - model_introduction_images.pdf: 模型的详细架构图
 > 
 > - train.py: 运行此文件可以进行训练（在此之前请先更改模型和测试图像的保存地址）
 > 
@@ -53,7 +56,8 @@ In the Decoder part, we employ a combination of deconvolution and convolution op
 > *由于Github文件大小限制(25MB)，我无法上传我预训练好的模型(约28MB)，如果你有兴趣，可以联系1793706453@qq.com*
 
 > ## File Descriptions (English translation):
->
+> - model_introduction_images.pdf: Specific introdution images of the model structure.
+> 
 > - train.py: Run this file to perform training.
 > 
 > - data.py: Load the dataset.
