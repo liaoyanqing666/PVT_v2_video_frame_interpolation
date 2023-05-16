@@ -2,6 +2,9 @@
 使用PVT_v2作为编码器的视频插帧程序，A program using PVT_v2 as the encoder of video frame interpolation
 
 
+
+
+
 > 文件说明
 > 
 > train.py: 运行此文件可以进行训练
@@ -18,6 +21,8 @@
 > 
 > output.avi: 预测效果（与output_without_vfi.avi对比）
 > 
+> 由于Github文件大小限制(25MB)，我无法上传我预训练好的模型(约28MB)，如果你有兴趣，可以联系1793706453@qq.com
+
 > English translation:
 > 
 > File Descriptions:
@@ -35,3 +40,5 @@
 > output_without_vfi.avi: Test video slowed down by a factor of four.
 > 
 > output.avi: Predicted output (to be compared with output_without_vfi.avi).
+> 
+> Due to the file size limit on GitHub (25MB), I am unable to upload my pre-trained model (approximately 28MB). If you are interested, please contact me at 1793706453@qq.com.
