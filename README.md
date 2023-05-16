@@ -3,42 +3,42 @@
 
 
 
+*Download dataset:https://opendatalab.com/Vimeo90K/download*
 
-
-> 文件说明
+> ## 文件说明
 > 
-> train.py: 运行此文件可以进行训练
+> - train.py: 运行此文件可以进行训练
 > 
-> data.py: 加载数据集
+> - data.py: 加载数据集
 > 
-> model.py: 模型代码
+> - model.py: 模型代码
 > 
-> test.py: 调用预训练好的模型对现有视频进行预测
+> - test.py: 调用预训练好的模型对现有视频进行预测
 > 
-> test.mp4: 测试视频
+> - test.mp4: 测试视频
 > 
-> output_without_vfi.avi: 测试视频放慢四倍
+> - output_without_vfi.avi: 测试视频放慢四倍
 > 
-> output.avi: 预测效果（与output_without_vfi.avi对比）
+> - output.avi: 预测效果（与output_without_vfi.avi对比）
 > 
-> 由于Github文件大小限制(25MB)，我无法上传我预训练好的模型(约28MB)，如果你有兴趣，可以联系1793706453@qq.com
+> *由于Github文件大小限制(25MB)，我无法上传我预训练好的模型(约28MB)，如果你有兴趣，可以联系1793706453@qq.com*
 
 > English translation:
 > 
-> File Descriptions:
+> ## File Descriptions:
 >
-> train.py: Run this file to perform training.
+> - train.py: Run this file to perform training.
 > 
-> data.py: Load the dataset.
+> - data.py: Load the dataset.
 > 
-> model.py: Model code.
+> - model.py: Model code.
 > 
-> test.py: Call the pre-trained model to predict on existing videos.
+> - test.py: Call the pre-trained model to predict on existing videos.
 > 
-> test.mp4: Test video.
+> - test.mp4: Test video.
 > 
-> output_without_vfi.avi: Test video slowed down by a factor of four.
+> - output_without_vfi.avi: Test video slowed down by a factor of four.
 > 
-> output.avi: Predicted output (to be compared with output_without_vfi.avi).
+> - output.avi: Predicted output (to be compared with output_without_vfi.avi).
 > 
-> Due to the file size limit on GitHub (25MB), I am unable to upload my pre-trained model (approximately 28MB). If you are interested, please contact me at 1793706453@qq.com.
+> *Due to the file size limit on GitHub (25MB), I am unable to upload my pre-trained model (approximately 28MB). If you are interested, please contact me at 1793706453@qq.com.*
