@@ -8,7 +8,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 
 class dataset(Dataset):
-    def __init__(self, train=True, max_num=10000000):
+    def __init__(self, train=True, max_num=10000000, preload=True):
         super(dataset, self).__init__()
         root = 'vimeo_triplet/sequences'
         self.root = root
@@ -19,20 +19,36 @@ class dataset(Dataset):
 
         with open(data_dic_txt, 'r') as f:
             lines = f.readlines()
-        self.lines = lines
         self.length = len(lines)
         self.length = min(self.length, max_num)
+        lines = lines[:self.length]
+        self.lines = lines
+        self.preload = preload
+        self.images = []
+        if preload:
+            for i, line in enumerate(lines):
+                line = line[:-1]
+                x1 = ToTensor()(Image.open(os.path.join(self.root, line, 'im1.png')))
+                x2 = ToTensor()(Image.open(os.path.join(self.root, line, 'im2.png')))
+                x3 = ToTensor()(Image.open(os.path.join(self.root, line, 'im3.png')))
+                self.images.append((x1, x2, x3))
+                if i % 10 == 9:
+                    print("Preloaded {} data.".format(i + 1))
+            print("Data preloaded.")
 
     def __len__(self):
         return self.length
 
     def __getitem__(self, item):
-        line = self.lines[item]
-        line = line[:-1]
-        x1 = Image.open(os.path.join(self.root, line, 'im1.png'))
-        x2 = Image.open(os.path.join(self.root, line, 'im2.png'))
-        x3 = Image.open(os.path.join(self.root, line, 'im3.png'))
-        return ToTensor()(x1), ToTensor()(x2), ToTensor()(x3)
+        if self.preload:
+            return self.images[item]
+        else:
+            line = self.lines[item]
+            line = line[:-1]
+            x1 = Image.open(os.path.join(self.root, line, 'im1.png'))
+            x2 = Image.open(os.path.join(self.root, line, 'im2.png'))
+            x3 = Image.open(os.path.join(self.root, line, 'im3.png'))
+            return ToTensor()(x1), ToTensor()(x2), ToTensor()(x3)
 
 
 if __name__ == "__main__":

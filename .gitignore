@@ -1,0 +1,7 @@
+__pycache__/
+model_pth/
+run.sh
+runs/
+test_photo/
+vimeo_triplet.tar
+vimeo_triplet/

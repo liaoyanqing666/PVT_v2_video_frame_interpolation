@@ -10,25 +10,25 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 torch.set_printoptions(precision=20)
 
-batch_size = 20 # need to be bigger than 7 to calculate SSIM
-learning_rate = 0.001
-epochs = 100
+batch_size = 64 # need to be bigger than 7 to calculate SSIM
+learning_rate = 0.0001
+epochs = 10000
 record = True
 
 H=256
 W=448
-# B0
-stage_num = 4
-input_channels = 6
-patch_size = (4, 2, 2, 2)
-embed_dim = (32, 64, 160, 256)
-block_num = (2, 2, 2, 2)
-sr_ratio = (8, 4, 2, 1)
-mlp_ratio = (8, 8, 4, 4)
-num_head = (1, 2, 5, 8)
-drop_rate = 0.3
-atten_drop_rate = 0.3
-drop_path_rate = 0.3
+# # B0
+# stage_num = 4
+# input_channels = 6
+# patch_size = (4, 2, 2, 2)
+# embed_dim = (32, 64, 160, 256)
+# block_num = (2, 2, 2, 2)
+# sr_ratio = (8, 4, 2, 1)
+# mlp_ratio = (8, 8, 4, 4)
+# num_head = (1, 2, 5, 8)
+# drop_rate = 0.3
+# atten_drop_rate = 0.3
+# drop_path_rate = 0.3
 
 # # B1
 # stage_num = 4
@@ -42,6 +42,19 @@ drop_path_rate = 0.3
 # drop_rate = 0.3
 # atten_drop_rate = 0.3
 # drop_path_rate = 0.3
+
+# B5
+stage_num = 4
+input_channels = 6
+patch_size = (4, 2, 2, 2)
+embed_dim = (64, 128, 320, 512)
+block_num = (3, 6, 40, 3)
+sr_ratio = (8, 4, 2, 1)
+mlp_ratio = (4, 4, 4, 4)
+num_head = (1, 2, 5, 8)
+drop_rate = 0.3
+atten_drop_rate = 0.3
+drop_path_rate = 0.3
 
 model = VFImodel(H=H, W=W,
                  stage_num=stage_num,
@@ -57,14 +70,14 @@ model = VFImodel(H=H, W=W,
                  drop_path_rate=drop_path_rate
                  ).to(device)
 
-# state_dict = torch.load('model_pth_1/model_iter10000.pth')
-# model.load_state_dict(state_dict)
+state_dict = torch.load('model_pth/model_iter15000.pth')
+model.load_state_dict(state_dict)
 
 optim = torch.optim.Adam(model.parameters(), lr=learning_rate)
 loss = nn.L1Loss().to(device)
 
 train_dataset = dataset(train=True)
-test_dataset = dataset(train=False, max_num=100)
+test_dataset = dataset(train=False)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
@@ -88,13 +101,13 @@ for i in range(epochs):
         optim.step()
 
         total_iteration_num += 1
-        if total_iteration_num % 10 == 0 and x1.shape[0] >= 7: # >= 7 to calculate SSIM
+        if total_iteration_num % 100 == 0 and x1.shape[0] >= 7: # >= 7 to calculate SSIM
             x2_pre = torch.clamp(x2_pre, min=0, max=1)
             mse = torch.mean((x2_pre - x2) ** 2)
             psnr = 10 * torch.log10(1 / mse)
             var1 = Variable(x2, requires_grad=False).cpu().numpy()
             var2 = Variable(x2_pre, requires_grad=False).cpu().numpy()
-            ssim_val = ssim(var1, var2, channel_axis=1)
+            ssim_val = ssim(var1, var2, channel_axis=1, data_range=1.0)
             print("Epoch:{}, Total iterations:{}, Train loss:{}, PSNR:{}, SSIM:{}"
                   .format(i + 1, total_iteration_num, train_loss, psnr, ssim_val))
             if record:
@@ -102,7 +115,7 @@ for i in range(epochs):
                 writer.add_scalar('train_PSNR', psnr, total_iteration_num)
                 writer.add_scalar('train_SSIM', ssim_val, total_iteration_num)
 
-        if total_iteration_num % 100 == 0:
+        if total_iteration_num % 1000 == 0:
             model.eval()
             total_test_loss = 0
             total_psnr = 0
@@ -125,8 +138,11 @@ for i in range(epochs):
                         example_pre = test_x2_pre.cpu().detach()
                         example_origin /= example_origin.max()
                         example_pre /= example_pre.max()
-                        save_image(example_pre, 'test_photo/img_iteration{}_pre.png'.format(total_iteration_num), normalize=True)
-                        save_image(example_origin, 'test_photo/img_iteration{}_true.png'.format(total_iteration_num), normalize=True)
+                        image_dir = 'test_photo'
+                        if not os.path.exists(image_dir):
+                            os.makedirs(image_dir)
+                        save_image(example_pre, os.path.join(image_dir,'img_iteration{}_pre.png'.format(total_iteration_num)), normalize=True)
+                        save_image(example_origin, os.path.join(image_dir,'img_iteration{}_true.png'.format(total_iteration_num)), normalize=True)
 
 
                     if test_x2.shape[0]>=7:
@@ -138,7 +154,7 @@ for i in range(epochs):
 
                         var1 = Variable(test_x2, requires_grad=False).cpu().numpy()
                         var2 = Variable(test_x2_pre, requires_grad=False).cpu().numpy()
-                        ssim_val = ssim(var1, var2, channel_axis=1)
+                        ssim_val = ssim(var1, var2, channel_axis=1, data_range=1.0)
                         total_ssim += ssim_val
 
             print("Epoch:{}, Total iterations:{}, Total test loss:{}, Average PSNR:{}, SSIM:{}"
@@ -148,10 +164,9 @@ for i in range(epochs):
                 writer.add_scalar('test_PSNR', total_psnr/test_batch_num, total_iteration_num)
                 writer.add_scalar('test_SSIM', total_ssim/test_batch_num, total_iteration_num)
                 if total_iteration_num % 1000 == 0:
-                    torch.save(model.state_dict(), 'model_pth/model_iter{}.pth'.format(total_iteration_num))
+                    data_folder = 'model_pth'
+                    if not os.path.exists(data_folder):
+                        os.makedirs(data_folder)
+                    torch.save(model.state_dict(), os.path.join(data_folder, 'model_iter{}.pth'.format(total_iteration_num)))
             model.train()
 
-    if i == 95:
-        learning_rate = 1e-4
-        optim = torch.optim.Adam(model.parameters(), lr=learning_rate)
-        print('Reset learning rate as {}.'.format(learning_rate))
